@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiuyue.blog.mapper.CommentsMapper">
+  <resultMap id="BaseResultMap" type="com.jiuyue.blog.pojo.model.Comments">
+    <id column="coid" jdbcType="INTEGER" property="coid" />
+    <result column="cid" jdbcType="INTEGER" property="cid" />
+    <result column="created" jdbcType="TIMESTAMP" property="created" />
+    <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="owner_id" jdbcType="INTEGER" property="ownerId" />
+    <result column="mail" jdbcType="VARCHAR" property="mail" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.jiuyue.blog.pojo.model.Comments">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    coid, cid, created, author, owner_id, mail, url, ip, status
+  </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_comments
+    where coid = #{coid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_comments
+    where coid = #{coid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.jiuyue.blog.pojo.model.Comments">
+    insert into t_comments (coid, cid, created, 
+      author, owner_id, mail, 
+      url, ip, status, content
+      )
+    values (#{coid,jdbcType=INTEGER}, #{cid,jdbcType=INTEGER}, #{created,jdbcType=TIMESTAMP}, 
+      #{author,jdbcType=VARCHAR}, #{ownerId,jdbcType=INTEGER}, #{mail,jdbcType=VARCHAR}, 
+      #{url,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.jiuyue.blog.pojo.model.Comments">
+    insert into t_comments
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="coid != null">
+        coid,
+      </if>
+      <if test="cid != null">
+        cid,
+      </if>
+      <if test="created != null">
+        created,
+      </if>
+      <if test="author != null">
+        author,
+      </if>
+      <if test="ownerId != null">
+        owner_id,
+      </if>
+      <if test="mail != null">
+        mail,
+      </if>
+      <if test="url != null">
+        url,
+      </if>
+      <if test="ip != null">
+        ip,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="coid != null">
+        #{coid,jdbcType=INTEGER},
+      </if>
+      <if test="cid != null">
+        #{cid,jdbcType=INTEGER},
+      </if>
+      <if test="created != null">
+        #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="author != null">
+        #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerId != null">
+        #{ownerId,jdbcType=INTEGER},
+      </if>
+      <if test="mail != null">
+        #{mail,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null">
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jiuyue.blog.pojo.model.Comments">
+    update t_comments
+    <set>
+      <if test="cid != null">
+        cid = #{cid,jdbcType=INTEGER},
+      </if>
+      <if test="created != null">
+        created = #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="author != null">
+        author = #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerId != null">
+        owner_id = #{ownerId,jdbcType=INTEGER},
+      </if>
+      <if test="mail != null">
+        mail = #{mail,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null">
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where coid = #{coid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.jiuyue.blog.pojo.model.Comments">
+    update t_comments
+    set cid = #{cid,jdbcType=INTEGER},
+      created = #{created,jdbcType=TIMESTAMP},
+      author = #{author,jdbcType=VARCHAR},
+      owner_id = #{ownerId,jdbcType=INTEGER},
+      mail = #{mail,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      ip = #{ip,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where coid = #{coid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jiuyue.blog.pojo.model.Comments">
+    update t_comments
+    set cid = #{cid,jdbcType=INTEGER},
+      created = #{created,jdbcType=TIMESTAMP},
+      author = #{author,jdbcType=VARCHAR},
+      owner_id = #{ownerId,jdbcType=INTEGER},
+      mail = #{mail,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      ip = #{ip,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR}
+    where coid = #{coid,jdbcType=INTEGER}
+  </update>
+</mapper>

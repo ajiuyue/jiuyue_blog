@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<div th:replace="themes/default/header::header(null,null)"></div>
+<body>
+<article class="main-content post-page" style="background-color: white">
+    <div class="panel panel-success" th:each="article:${contentDtoList}">
+        <div class="panel-heading">
+            <h2 class="panel-title">
+                <a th:href="@{'/article/'+${article.cid}+'/preview'}" th:text="${article.title}">article_title</a>
+            </h2>
+        </div>
+        <span>
+            <table border="1" style="margin: 0px" width="645px">
+                <tr>
+                    <td width="10%">原创</td>
+                    <td width="20%" th:text="${#dates.format(article.created, 'yyyy-MM-dd')}">2019-3-9</td>
+                    <td width="20%" th:text="${article.category}">springboot</td>
+                    <td width="500px"></td>
+                </tr>
+            </table>
+            </span>
+        <div id="post-content" class="post-content" itemprop="articleBody" style="text-overflow: ellipsis;overflow: hidden;width: 645px;height: 118px;margin-left: 5px">
+            <th:block th:utext="${article.content}"/>
+        </div>
+        <div class="panel-body" style="margin-bottom: 3px">
+            <a th:href="@{'/article/'+${article.cid}+'/preview'}" style="float: right;color: #268a51">查看更多</a>
+        </div>
+    </div>
+    <div style="text-align: center;">
+    <span th:if="${curPage <= 1}">
+        首页
+        上一页
+    </span>
+    <span th:if="${curPage>1}">
+        <a th:href="@{/index}" style="color: mediumpurple">首页</a>
+        <a th:href="@{'/index?curPage='+${curPage-1}}" style="color: mediumpurple">上一页</a>
+    </span>
+    <span th:if="${curPage == totalPages}">
+        下一页
+        尾页
+    </span>
+    <span th:if="${curPage < totalPages}">
+        <a th:href="@{'/index?curPage='+${curPage+1}}"style="color: mediumpurple">下一页</a>
+        <a th:href="@{'/index?curPage='+${totalPages}}" style="color: mediumpurple">尾页</a>
+    </span>
+    <span th:if="${totalPages}" style="text-align:right;float: right">
+         <a th:href="@{'/index?curPage='+${curPage}}">第[[${curPage}]]页</a>
+        /<a th:href="@{'/index?curPage='+${totalPages}}">共[[${totalPages}]]页</a>
+    </span>
+    </div>
+</article>
+<div th:replace="themes/default/comments::comments"></div>
+<div th:replace="themes/default/footer::footer"></div>
+</body>
+</html>
