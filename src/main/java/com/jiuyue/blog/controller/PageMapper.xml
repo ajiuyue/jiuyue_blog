@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiuyue.blog.mapper.PageMapper">
+  <resultMap id="BaseResultMap" type="com.jiuyue.blog.pojo.model.Page">
+    <id column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="created" jdbcType="TIMESTAMP" property="created" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.jiuyue.blog.pojo.model.Page">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, name, url, status, created
+  </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+<!--查询page总数-->
+  <select id="getPageCount" resultType="java.lang.Integer">
+    select count(*)
+    from t_page
+  </select>
+  <!--分页查询导航栏page-->
+  <select id="getPages" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_page
+    limit #{startRow,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+
+  <!--获取name获取页面-->
+  <select id="getPageByName"  resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_page where name = #{name,jdbcType=VARCHAR} and status='1'
+  </select>
+
+  <!--ABS(status-1)取反改变状态-->
+  <update id="ChangeStatus" parameterType="java.lang.Integer">
+    update t_page set status= ABS(status-1)
+    where pid= #{pid,jdbcType=INTEGER}
+  </update>
+  <!--根据id查询页面-->
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_page
+    where pid = #{pid,jdbcType=INTEGER}
+  </select>
+  <!--根据id删除页面-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_page
+    where pid = #{pid,jdbcType=INTEGER}
+  </delete>
+  <!--添加页面-->
+  <insert id="insert" parameterType="com.jiuyue.blog.pojo.model.Page">
+    insert into t_page (pid, name, url, 
+      status, created, content
+      )
+    values (#{pid,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{created,jdbcType=TIMESTAMP}, #{content,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <!--添加页面-->
+  <insert id="insertSelective" parameterType="com.jiuyue.blog.pojo.model.Page">
+    insert into t_page
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="url != null">
+        url,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="created != null">
+        created,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="created != null">
+        #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jiuyue.blog.pojo.model.Page">
+    update t_page
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="created != null">
+        created = #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.jiuyue.blog.pojo.model.Page">
+    update t_page
+    set name = #{name,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      created = #{created,jdbcType=TIMESTAMP},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where pid = #{pid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jiuyue.blog.pojo.model.Page">
+    update t_page
+    set name = #{name,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      created = #{created,jdbcType=TIMESTAMP}
+    where pid = #{pid,jdbcType=INTEGER}
+  </update>
+</mapper>

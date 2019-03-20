@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiuyue.blog.mapper.ContentsMapper">
+  <resultMap id="BaseResultMap" type="com.jiuyue.blog.pojo.model.Contents">
+    <id column="cid" jdbcType="INTEGER" property="cid" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="created" jdbcType="TIMESTAMP" property="created" />
+    <result column="modified" jdbcType="TIMESTAMP" property="modified" />
+    <result column="author_id" jdbcType="INTEGER" property="authorId" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="category_id" jdbcType="INTEGER" property="categoryId" />
+    <result column="hits" jdbcType="INTEGER" property="hits" />
+    <result column="comments_num" jdbcType="INTEGER" property="commentsNum" />
+    <result column="allow_comment" jdbcType="BIT" property="allowComment" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.jiuyue.blog.pojo.model.Contents">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+
+  <resultMap id="BaseResultMapWithCategory" type="com.jiuyue.blog.pojo.vo.ContentVo">
+    <id column="cid" jdbcType="INTEGER" property="cid" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="created" jdbcType="TIMESTAMP" property="created" />
+    <result column="modified" jdbcType="TIMESTAMP" property="modified" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="name" jdbcType="INTEGER" property="category" />
+    <result column="hits" jdbcType="INTEGER" property="hits" />
+    <result column="comments_num" jdbcType="INTEGER" property="commentsNum" />
+    <result column="allow_comment" jdbcType="BIT" property="allowComment" />
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+
+  <resultMap id="ArticleByArchiveMap" type="com.jiuyue.blog.pojo.vo.ArchiveVo">
+    <result column="date" property="date"></result>
+    <result column="count" property="count"></result>
+    <collection property="articles" ofType="com.jiuyue.blog.pojo.vo.ContentVo">
+      <id column="cid" jdbcType="INTEGER" property="cid" />
+      <result column="title" jdbcType="VARCHAR" property="title" />
+      <result column="created" jdbcType="TIMESTAMP" property="created" />
+      <result column="modified" jdbcType="TIMESTAMP" property="modified" />
+      <result column="tags" jdbcType="VARCHAR" property="tags" />
+      <result column="name" jdbcType="INTEGER" property="category" />
+      <result column="hits" jdbcType="INTEGER" property="hits" />
+      <result column="comments_num" jdbcType="INTEGER" property="commentsNum" />
+      <result column="allow_comment" jdbcType="BIT" property="allowComment" />
+      <result column="content" jdbcType="LONGVARCHAR" property="content" />
+    </collection>
+  </resultMap>
+
+  <select id="ArticleByArchive" parameterType="java.util.Map" resultMap="ArticleByArchiveMap">
+    select
+      year(co.created) as date,
+      co.cid,co.title,co.created,ca.name,
+      co.content
+    from t_contents co,t_categories ca where co.category_id= ca.id
+    order by co.created desc
+    limit #{startRow,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+
+  <sql id="Base_Column_List">
+    cid, title, created, modified, author_id, status, tags, category_id, hits, comments_num,
+    allow_comment
+  </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+
+  <!--查询分页所有博客(不包含content)-->
+  <select id="getArticleByPage" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />,
+    <include refid="Blob_Column_List" />
+    from t_contents order by created desc
+    limit #{startRow,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+  <!--分页查询博客(包括博文内容)-->
+  <select id="getArticleByPageWithBlogs" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />,
+    <include refid="Blob_Column_List" />
+    from t_contents
+    limit #{startRow,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+
+  <!--根据id查询博文包括博文内容、分类名称-->
+  <select id="getArticleByIdWithBlogsContainCategory" parameterType="java.lang.Integer" resultMap="BaseResultMapWithCategory">
+    select
+      co.cid,co.title,co.created,co.modified,co.tags,ca.name,
+      co.hits,co.comments_num, co.content,co.allow_comment
+    from t_contents co ,t_categories ca where co.cid = #{cid,jdbcType=INTEGER} and co.category_id= ca.id;
+  </select>
+
+  <!--分页查询包括博文内容并取出分类名称-->
+  <select id="getArticleByPageWithBlogsContainCategory" parameterType="java.util.Map" resultMap="BaseResultMapWithCategory">
+    select
+      co.cid,co.title,co.created,co.modified,co.tags,ca.name,
+      co.hits,co.comments_num, co.content,co.allow_comment
+    from t_contents co,t_categories ca where co.category_id= ca.id
+    order by co.created desc
+    limit #{startRow,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+
+  <!--查询博客总数-->
+  <select id="selectUserByTotal"  resultType="java.lang.Integer">
+    select
+    count(*)
+    from t_contents
+  </select>
+  <!--根据id查询博客(包括博文content)-->
+  <select id="selectByPrimaryKeyWithBlog" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_contents
+    where cid = #{cid,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_contents
+    where cid = #{cid,jdbcType=INTEGER}
+  </select>
+  <!--根据id删除博客-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_contents
+    where cid = #{cid,jdbcType=INTEGER}
+  </delete>
+  <!--添加博客-->
+  <insert id="insert" parameterType="com.jiuyue.blog.pojo.model.Contents">
+    insert into t_contents (cid, title, created, 
+      modified, author_id, status, 
+      tags, category_id, hits, 
+      comments_num, allow_comment, content
+      )
+    values (#{cid,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{created,jdbcType=TIMESTAMP}, 
+      #{modified,jdbcType=TIMESTAMP}, #{authorId,jdbcType=INTEGER}, #{status,jdbcType=VARCHAR}, 
+      #{tags,jdbcType=VARCHAR}, #{categoryId,jdbcType=INTEGER}, #{hits,jdbcType=INTEGER}, 
+      #{commentsNum,jdbcType=INTEGER}, #{allowComment,jdbcType=BIT}, #{content,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.jiuyue.blog.pojo.model.Contents">
+    insert into t_contents
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="cid != null">
+        cid,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="created != null">
+        created,
+      </if>
+      <if test="modified != null">
+        modified,
+      </if>
+      <if test="authorId != null">
+        author_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="tags != null">
+        tags,
+      </if>
+      <if test="categoryId != null">
+        category_id,
+      </if>
+      <if test="hits != null">
+        hits,
+      </if>
+      <if test="commentsNum != null">
+        comments_num,
+      </if>
+      <if test="allowComment != null">
+        allow_comment,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="cid != null">
+        #{cid,jdbcType=INTEGER},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="created != null">
+        #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modified != null">
+        #{modified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="authorId != null">
+        #{authorId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="tags != null">
+        #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryId != null">
+        #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="hits != null">
+        #{hits,jdbcType=INTEGER},
+      </if>
+      <if test="commentsNum != null">
+        #{commentsNum,jdbcType=INTEGER},
+      </if>
+      <if test="allowComment != null">
+        #{allowComment,jdbcType=BIT},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jiuyue.blog.pojo.model.Contents">
+    update t_contents
+    <set>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="created != null">
+        created = #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modified != null">
+        modified = #{modified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="authorId != null">
+        author_id = #{authorId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="tags != null">
+        tags = #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryId != null">
+        category_id = #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="hits != null">
+        hits = #{hits,jdbcType=INTEGER},
+      </if>
+      <if test="commentsNum != null">
+        comments_num = #{commentsNum,jdbcType=INTEGER},
+      </if>
+      <if test="allowComment != null">
+        allow_comment = #{allowComment,jdbcType=BIT},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.jiuyue.blog.pojo.model.Contents">
+    update t_contents
+    set title = #{title,jdbcType=VARCHAR},
+      created = #{created,jdbcType=TIMESTAMP},
+      modified = #{modified,jdbcType=TIMESTAMP},
+      author_id = #{authorId,jdbcType=INTEGER},
+      status = #{status,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR},
+      category_id = #{categoryId,jdbcType=INTEGER},
+      hits = #{hits,jdbcType=INTEGER},
+      comments_num = #{commentsNum,jdbcType=INTEGER},
+      allow_comment = #{allowComment,jdbcType=BIT},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jiuyue.blog.pojo.model.Contents">
+    update t_contents
+    set title = #{title,jdbcType=VARCHAR},
+      created = #{created,jdbcType=TIMESTAMP},
+      modified = #{modified,jdbcType=TIMESTAMP},
+      author_id = #{authorId,jdbcType=INTEGER},
+      status = #{status,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR},
+      category_id = #{categoryId,jdbcType=INTEGER},
+      hits = #{hits,jdbcType=INTEGER},
+      comments_num = #{commentsNum,jdbcType=INTEGER},
+      allow_comment = #{allowComment,jdbcType=BIT}
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+</mapper>
